@@ -11,7 +11,7 @@ const NAMES = [
   'ЯестьГРУТ'
 ];
 
-let DESCRIPTIONS = [
+const DESCRIPTIONS = [
   'Похоже на раннего Пикассо',
   'Ван Гог как всегда неподражаем',
   'Одно из редчайших полотен Рембрандта'
@@ -30,44 +30,47 @@ function checkStingLength (string, maxLength) {
   return (string.length <= maxLength);
 }
 
+// eslint-disable-next-line no-console
+console.log(checkStingLength('1412424131', 15));
+
 function createIdArray(size) {
   const arrId = Array.from({length: size}, (_, i) => i + 1);
   return arrId;
 }
 
 function getId(array) {
-  let arrId = array;
-  let randomIndex = getRandomOnInterval(0, arrId.length-1);
-  let id = arrId[randomIndex];
+  const arrId = array;
+  const randomIndex = getRandomOnInterval(0, arrId.length-1);
+  const id = arrId[randomIndex];
   arrId.splice(randomIndex, 1);
   return id;
 }
 
 function createComment(commentId) {
-  let comment = {
+  const comment = {
     id: commentId,
-    avatar: 'img/avatar-' + getRandomOnInterval(1, 6) + '.svg',
+    avatar: `img/avatar-${  getRandomOnInterval(1, 6)  }.svg`,
     message: COMMENTS[getRandomOnInterval(0, COMMENTS.length - 1)],
     name: NAMES[getRandomOnInterval(0, NAMES.length - 1)],
-  }
+  };
   return comment;
 }
 
 function getComments() {
-  let comments = [];
-  let numberOfComments = getRandomOnInterval(3,6);
-  let commentsIdArray = createIdArray(numberOfComments);
+  const comments = [];
+  const numberOfComments = getRandomOnInterval(3,6);
+  const commentsIdArray = createIdArray(numberOfComments);
   for (let i = 0; i <= numberOfComments - 1; i++) {
-    let commentId = getId(commentsIdArray);
+    const commentId = getId(commentsIdArray);
     comments[i] = createComment(commentId);
   }
   return comments;
 }
 
 function createImageDescription(imageId) {
-   let imageData = {
+  const imageData = {
     id: imageId,
-    url: 'photos/' + imageId + '.jpg',
+    url: `photos/${  imageId  }.jpg`,
     description: DESCRIPTIONS[getRandomOnInterval(0, DESCRIPTIONS.length - 1)],
     likes: getRandomOnInterval(15, 200),
     comments: getComments(),
@@ -76,15 +79,16 @@ function createImageDescription(imageId) {
 }
 
 function getImageDescriptions() {
-  let descriptions = [];
-  let numberOfImages = 25;
-  let imagesIdArray = createIdArray(numberOfImages);
+  const descriptions = [];
+  const numberOfImages = 25;
+  const imagesIdArray = createIdArray(numberOfImages);
   for (let i = 0; i <= numberOfImages - 1; i++) {
-    let imageId = getId(imagesIdArray);
+    const imageId = getId(imagesIdArray);
     descriptions[i] = createImageDescription(imageId);
   }
   return descriptions;
 }
 
+// eslint-disable-next-line no-console
 console.log(getImageDescriptions());
 
