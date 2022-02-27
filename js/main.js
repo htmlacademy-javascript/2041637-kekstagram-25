@@ -17,6 +17,8 @@ const DESCRIPTIONS = [
   'Одно из редчайших полотен Рембрандта'
 ];
 
+const NUMBER_OF_IMAGES = 25;
+
 function getRandomOnInterval (num1, num2) {
   if (num1 >= num2) {
     const num3 = num1;
@@ -33,58 +35,38 @@ function checkStingLength (string, maxLength) {
 // eslint-disable-next-line no-console
 console.log(checkStingLength('1412424131', 15));
 
-function createIdArray(size) {
-  const arrId = Array.from({length: size}, (_, i) => i + 1);
-  return arrId;
-}
-
-function getId(array) {
-  const arrId = array;
-  const randomIndex = getRandomOnInterval(0, arrId.length-1);
-  const id = arrId[randomIndex];
-  arrId.splice(randomIndex, 1);
-  return id;
-}
-
 function createComment(commentId) {
-  const comment = {
+  return {
     id: commentId,
-    avatar: `img/avatar-${  getRandomOnInterval(1, 6)  }.svg`,
+    avatar: `img/avatar-${getRandomOnInterval(1, 6)}.svg`,
     message: COMMENTS[getRandomOnInterval(0, COMMENTS.length - 1)],
     name: NAMES[getRandomOnInterval(0, NAMES.length - 1)],
   };
-  return comment;
 }
 
 function getComments() {
   const comments = [];
   const numberOfComments = getRandomOnInterval(3,6);
-  const commentsIdArray = createIdArray(numberOfComments);
   for (let i = 0; i <= numberOfComments - 1; i++) {
-    const commentId = getId(commentsIdArray);
-    comments[i] = createComment(commentId);
+    comments[i] = createComment(i + 1);
   }
   return comments;
 }
 
 function createImageDescription(imageId) {
-  const imageData = {
+  return {
     id: imageId,
-    url: `photos/${  imageId  }.jpg`,
+    url: `photos/${imageId}.jpg`,
     description: DESCRIPTIONS[getRandomOnInterval(0, DESCRIPTIONS.length - 1)],
     likes: getRandomOnInterval(15, 200),
     comments: getComments(),
   };
-  return imageData;
 }
 
 function getImageDescriptions() {
   const descriptions = [];
-  const numberOfImages = 25;
-  const imagesIdArray = createIdArray(numberOfImages);
-  for (let i = 0; i <= numberOfImages - 1; i++) {
-    const imageId = getId(imagesIdArray);
-    descriptions[i] = createImageDescription(imageId);
+  for (let i = 0; i <= NUMBER_OF_IMAGES - 1; i++) {
+    descriptions[i] = createImageDescription(i + 1);
   }
   return descriptions;
 }
