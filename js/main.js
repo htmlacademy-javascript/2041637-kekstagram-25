@@ -1,5 +1,5 @@
-import {getImageDescriptions} from './data.js';
-
+import {generateImagesFromData} from './image-generator.js';
 
 // eslint-disable-next-line no-console
-console.log(getImageDescriptions());
+generateImagesFromData();
+
