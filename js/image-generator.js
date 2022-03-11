@@ -1,27 +1,31 @@
-import {getImageDescriptions} from './data.js';
 import {openBigImageForm} from './image-viewer.js';
 
-const imageFormTemplate = document.querySelector('#picture').content;
-const imageForm = imageFormTemplate.querySelector('a');
-const picturesForm = document.querySelector('.pictures');
-const imageDescriptions = getImageDescriptions();
-const imagesFragment = document.createDocumentFragment();
+const imageTemplate = document.querySelector('#picture').content;
+const picturesContainer = document.querySelector('.pictures');
 
-function generateImagesFromData() {
+const generateImagesFromData = (imageDescriptions) => {
+  const imagesFragment = document.createDocumentFragment();
   imageDescriptions.forEach((imageDescription) => {
-    const imageFormCopy = imageForm.cloneNode(true);
-    const imageUrl = imageFormCopy.querySelector('.picture__img');
+    const imageTemplateCopy = imageTemplate.cloneNode(true);
+    const imageUrl = imageTemplateCopy.querySelector('.picture__img');
+    const imageComments = imageTemplateCopy.querySelector('.picture__comments');
+    const imageLikes = imageTemplateCopy.querySelector('.picture__likes');
+    const imageNode = imageTemplateCopy.querySelector('a');
     imageUrl.src = imageDescription.url;
-    const imageComments = imageFormCopy.querySelector('.picture__comments');
     imageComments.textContent = imageDescription.comments.length;
-    const imageLikes = imageFormCopy.querySelector('.picture__likes');
     imageLikes.textContent = imageDescription.likes;
-    imagesFragment.append(imageFormCopy);
-    imageFormCopy.addEventListener('click', () => {
+    imagesFragment.append(imageTemplateCopy);
+    imageNode.addEventListener('click', () => {
       openBigImageForm(imageDescription);
     });
   });
-  picturesForm.appendChild(imagesFragment);
-}
+  picturesContainer.appendChild(imagesFragment);
+  /*picturesContainer.addEventListener('click', (evt) => {
+    const reg = /.*\/photos\/(.*)\.jpg/;
+    const imageId = +evt.target.src.match(reg)[1];
+    const result = imageDescriptions.filter((description) => description.id === imageId);
+    openBigImageForm(result[0]);
+  });*/
+};
 
 export {generateImagesFromData};

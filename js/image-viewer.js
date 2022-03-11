@@ -1,3 +1,5 @@
+import {isEscPressed} from './util.js';
+
 const bigImageForm = document.querySelector('.big-picture');
 const bigImage = bigImageForm.querySelector('.big-picture__img').querySelector('img');
 const bigImageLikes = bigImageForm.querySelector('.likes-count');
@@ -9,7 +11,21 @@ const bigImageCommentsLoader = bigImageForm.querySelector('.comments-loader');
 const bigImageCancelButton = bigImageForm.querySelector('.big-picture__cancel');
 
 
-function openBigImageForm(imageDescription) {
+const closeOnEscHandler = (evt) => {
+  if (isEscPressed(evt)) {
+    bigImageForm.classList.add('hidden');
+    document.removeEventListener('keydown', closeOnEscHandler);
+    bigImageCancelButton.removeEventListener('click', closeOnEscHandler);
+  }
+};
+
+const closeOnButtonHandler = () => {
+  bigImageForm.classList.add('hidden');
+  document.removeEventListener('keydown', closeOnButtonHandler);
+  bigImageCancelButton.removeEventListener('click', closeOnButtonHandler);
+};
+
+const openBigImageForm = (imageDescription) => {
   bigImageForm.classList.remove('hidden');
   bigImage.src = imageDescription.url;
   bigImageLikes.textContent = imageDescription.likes;
@@ -29,15 +45,9 @@ function openBigImageForm(imageDescription) {
   bigImageSocialCommentCount.classList.add('hidden');
   bigImageCommentsLoader.classList.add('hidden');
   document.body.classList.add('modal-open');
-  document.addEventListener('keydown', (evt) => {
-    if (evt.keyCode === 27) {
-      bigImageForm.classList.add('hidden');
-    }
-  });
-  bigImageCancelButton.addEventListener('click', () => {
-    bigImageForm.classList.add('hidden');
-  });
-}
+  document.addEventListener('keydown', closeOnEscHandler);
+  bigImageCancelButton.addEventListener('click', closeOnButtonHandler);
+};
 
 export {openBigImageForm};
 
