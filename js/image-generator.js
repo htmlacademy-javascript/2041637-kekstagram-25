@@ -18,9 +18,11 @@ const generateImagesFromData = (imageDescriptions) => {
   });
   picturesContainer.appendChild(imagesFragment);
   picturesContainer.addEventListener('click', (evt) => {
-    const imageId = +evt.target.dataset.imageId;
-    const desiredImage = imageDescriptions.find((description) => description.id === imageId);
-    openBigImageForm(desiredImage);
+    if (evt.target.closest('.picture__img')) {
+      const imageId = +evt.target.dataset.imageId;
+      const desiredImage = imageDescriptions.find((description) => description.id === imageId);
+      openBigImageForm(desiredImage);
+    }
   });
 };
 
