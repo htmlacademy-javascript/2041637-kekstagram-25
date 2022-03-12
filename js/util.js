@@ -11,10 +11,10 @@ const getRandomOnInterval = (num1, num2) => {
   return num1 === num2 ? num1 : Math.floor(Math.random()*(num2 - num1 + 1)) + num1;
 };
 
-const checkStingLength = (string, maxLength) => (string.length <= maxLength);
+const checkStringLength = (string, maxLength) => (string.length <= maxLength);
 
 // eslint-disable-next-line no-console
-console.log(checkStingLength('1412424131', 15));
+console.log(checkStringLength('1412424131', 15));
 
 export {getRandomOnInterval};
 export {isEscPressed};
