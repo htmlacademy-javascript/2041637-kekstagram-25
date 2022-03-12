@@ -10,22 +10,18 @@ const generateImagesFromData = (imageDescriptions) => {
     const imageUrl = imageTemplateCopy.querySelector('.picture__img');
     const imageComments = imageTemplateCopy.querySelector('.picture__comments');
     const imageLikes = imageTemplateCopy.querySelector('.picture__likes');
-    const imageNode = imageTemplateCopy.querySelector('a');
+    imageUrl.dataset.imageId = imageDescription.id;
     imageUrl.src = imageDescription.url;
     imageComments.textContent = imageDescription.comments.length;
     imageLikes.textContent = imageDescription.likes;
     imagesFragment.append(imageTemplateCopy);
-    imageNode.addEventListener('click', () => {
-      openBigImageForm(imageDescription);
-    });
   });
   picturesContainer.appendChild(imagesFragment);
-  /*picturesContainer.addEventListener('click', (evt) => {
-    const reg = /.*\/photos\/(.*)\.jpg/;
-    const imageId = +evt.target.src.match(reg)[1];
-    const result = imageDescriptions.filter((description) => description.id === imageId);
-    openBigImageForm(result[0]);
-  });*/
+  picturesContainer.addEventListener('click', (evt) => {
+    const imageId = +evt.target.dataset.imageId;
+    const desiredImage = imageDescriptions.find((description) => description.id === imageId);
+    openBigImageForm(desiredImage);
+  });
 };
 
 export {generateImagesFromData};

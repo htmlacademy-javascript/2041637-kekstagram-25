@@ -11,18 +11,12 @@ const bigImageCommentsLoader = bigImageForm.querySelector('.comments-loader');
 const bigImageCancelButton = bigImageForm.querySelector('.big-picture__cancel');
 
 
-const closeOnEscHandler = (evt) => {
-  if (isEscPressed(evt)) {
+const closeBigImageFormHandler = (evt) => {
+  if (isEscPressed(evt) || evt.type === 'click') {
     bigImageForm.classList.add('hidden');
-    document.removeEventListener('keydown', closeOnEscHandler);
-    bigImageCancelButton.removeEventListener('click', closeOnEscHandler);
+    document.removeEventListener('keydown', closeBigImageFormHandler);
+    bigImageCancelButton.removeEventListener('click', closeBigImageFormHandler);
   }
-};
-
-const closeOnButtonHandler = () => {
-  bigImageForm.classList.add('hidden');
-  document.removeEventListener('keydown', closeOnButtonHandler);
-  bigImageCancelButton.removeEventListener('click', closeOnButtonHandler);
 };
 
 const openBigImageForm = (imageDescription) => {
@@ -45,8 +39,8 @@ const openBigImageForm = (imageDescription) => {
   bigImageSocialCommentCount.classList.add('hidden');
   bigImageCommentsLoader.classList.add('hidden');
   document.body.classList.add('modal-open');
-  document.addEventListener('keydown', closeOnEscHandler);
-  bigImageCancelButton.addEventListener('click', closeOnButtonHandler);
+  document.addEventListener('keydown', closeBigImageFormHandler);
+  bigImageCancelButton.addEventListener('click', closeBigImageFormHandler);
 };
 
 export {openBigImageForm};
