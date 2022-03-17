@@ -42,49 +42,47 @@ imageUploadInput.addEventListener('change', (evt) => {
 
 
 pristine.addValidator(imageUploadHashtags, (value) => {
-  const hashtagArr = value.split(' ');
-  const reg = RegExp(`^#[a-z]{${HASHTAG_MINLENGTH},${HASHTAG_MAXLENGTH}}$`);
-  for (let i = 0; i < hashtagArr.length; i++) {
-    if (reg.test(hashtagArr[i]) === false) {
-      return false;
-    }
+  if (value !== '') {
+    const hashtagArr = value.split(' ');
+    const reg = RegExp(`^#[a-zA-Z]{${HASHTAG_MINLENGTH},${HASHTAG_MAXLENGTH}}$`);
+    return hashtagArr.every((elem) => reg.test(elem));
   }
   return true;
 }, 'Хэштег должен начинаться с # и быть длиной от 1 до 20 символов, содержать только латинские буквы');
 
 
+const doesElemRepeat = (elem, set) => {
+  const elemLow = elem.toLowerCase();
+  if (set.has(elemLow)) {
+    return false;
+  }
+  set.add(elemLow);
+  return true;
+};
+
+
 pristine.addValidator(imageUploadHashtags, (value) => {
-  const hashtagArr = value.split(' ');
-  const hashtagSet = new Set();
-  for (let i = 0; i < hashtagArr.length; i++) {
-    const hashtagLow = hashtagArr[i].toLowerCase();
-    if (hashtagSet.has(hashtagLow)) {
-      return false;
-    }
-    hashtagSet.add(hashtagLow);
+  if (value !== '') {
+    const hashtagArr = value.split(' ');
+    const hashtagSet = new Set();
+    return (hashtagArr.every((elem) => doesElemRepeat(elem, hashtagSet)));
   }
   return true;
 }, 'Хэштег не должен повторяться');
 
 
 pristine.addValidator(imageUploadHashtags, (value) => {
-  const hashtagArr = value.split(' ');
-  if (hashtagArr.length === 1 && hashtagArr[0] === '') {
-    return true;
-  }
-  if (hashtagArr.length > MAX_HASHTAGS) {
-    return false;
+  if (value !== '') {
+    const hashtagArr = value.split(' ');
+    if (hashtagArr.length > MAX_HASHTAGS) {
+      return false;
+    }
   }
   return true;
 }, 'Хэштегов не должно быть больше пяти');
 
 
-pristine.addValidator(imageUploadDescription, (value) => {
-  if (value.length <= DESCRIPTION_LENGTH) {
-    return true;
-  }
-  return false;
-}, 'Текст комментария должен быть не более 140 символов');
+pristine.addValidator(imageUploadDescription, (value) => value.length <= DESCRIPTION_LENGTH, 'Текст комментария должен быть не более 140 символов');
 
 
 imageUploadDescription.addEventListener('keydown', (evt) => {
