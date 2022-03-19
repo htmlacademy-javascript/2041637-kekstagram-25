@@ -19,28 +19,38 @@ const closeBigImageFormHandler = (evt) => {
   }
 };
 
+const generateMoreComments = (comments) => {
+  comments = comments.splice(0, 5);
+  comments.forEach((comment) => {
+    const commentHtml = `<li class="social__comment">
+          <img
+              class="social__picture"
+              src="${comment.avatar}"
+              alt="${comment.name}"
+              width="35" height="35">
+          <p class="social__text">${comment.message}</p>
+      </li>`;
+    bigImageComments.insertAdjacentHTML('beforeend', commentHtml);
+  });
+  bigImageSocialCommentCount.dataset.commentsShown = +bigImageSocialCommentCount.dataset.commentsShown + comments.length;
+  bigImageSocialCommentCount.innerHTML = `${bigImageSocialCommentCount.dataset.commentsShown} из <span class="comments-count">${bigImageSocialCommentCount.dataset.comments}</span> комментариев`;
+};
+
 const openBigImageForm = (imageDescription) => {
+  const comments = imageDescription.comments.slice();
+  bigImageSocialCommentCount.dataset.comments = comments.length;
+  bigImageSocialCommentCount.dataset.commentsShown = 0;
   bigImageForm.classList.remove('hidden');
   bigImage.src = imageDescription.url;
   bigImageLikes.textContent = imageDescription.likes;
   bigImageCommentsCount.textContent = imageDescription.comments.length;
-  imageDescription.comments.forEach((comment) => {
-    const commentHtml = `<li class="social__comment">
-        <img
-            class="social__picture"
-            src="${comment.avatar}"
-            alt="${comment.name}"
-            width="35" height="35">
-        <p class="social__text">${comment.message}</p>
-    </li>`;
-    bigImageComments.insertAdjacentHTML('beforeend', commentHtml);
-  });
+  bigImageComments.innerHTML = '';
+  generateMoreComments(comments);
   bigImageDescription.textContent = imageDescription.description;
-  bigImageSocialCommentCount.classList.add('hidden');
-  bigImageCommentsLoader.classList.add('hidden');
   document.body.classList.add('modal-open');
   document.addEventListener('keydown', closeBigImageFormHandler);
   bigImageCancelButton.addEventListener('click', closeBigImageFormHandler);
+  bigImageCommentsLoader.addEventListener('click', () => generateMoreComments(comments));
 };
 
 export {openBigImageForm};

@@ -33,7 +33,7 @@ function createComment(commentId) {
 
 function getComments() {
   const comments = [];
-  const numberOfComments = getRandomOnInterval(3,6);
+  const numberOfComments = getRandomOnInterval(3,16);
   for (let i = 0; i <= numberOfComments - 1; i++) {
     comments[i] = createComment(i + 1);
   }
