@@ -5,7 +5,7 @@ const HASHTAG_MINLENGTH = 1;
 const HASHTAG_MAXLENGTH = 20;
 const DESCRIPTION_LENGTH = 140;
 
-const validationConfig = {
+const pristineConfig = {
   classTo: 'img-upload__text',
   errorTextParent: 'img-upload__text',
   errorTextTag: 'div',
@@ -17,8 +17,8 @@ const imageUploadOverlay = imageUploadForm.querySelector('.img-upload__overlay')
 const imageUploadCancelButton = imageUploadForm.querySelector('.img-upload__cancel');
 const imageUploadHashtags = imageUploadForm.querySelector('.text__hashtags');
 const imageUploadDescription = imageUploadForm.querySelector('.text__description');
-const pristine = new Pristine(imageUploadForm, validationConfig);
-
+const pristine = new Pristine(imageUploadForm, pristineConfig);
+const reg = RegExp(`^#[a-zA-Z]{${HASHTAG_MINLENGTH},${HASHTAG_MAXLENGTH}}$`);
 
 const imageUploadFormCloseHandler = (evt) => {
   if (isEscPressed(evt) || evt.type === 'click') {
@@ -30,7 +30,6 @@ const imageUploadFormCloseHandler = (evt) => {
   }
 };
 
-
 imageUploadInput.addEventListener('change', (evt) => {
   if (evt.target.value) {
     imageUploadOverlay.classList.remove('hidden');
@@ -40,60 +39,47 @@ imageUploadInput.addEventListener('change', (evt) => {
   }
 });
 
-
 pristine.addValidator(imageUploadHashtags, (value) => {
-  if (value !== '') {
-    const hashtagArr = value.split(' ');
-    const reg = RegExp(`^#[a-zA-Z]{${HASHTAG_MINLENGTH},${HASHTAG_MAXLENGTH}}$`);
-    return hashtagArr.every((elem) => reg.test(elem));
+  if (!value) {
+    return true;
   }
-  return true;
+  const hashtagArr = value.split(' ');
+  return hashtagArr.every((elem) => reg.test(elem));
 }, 'Хэштег должен начинаться с # и быть длиной от 1 до 20 символов, содержать только латинские буквы');
 
-
-const doesElemRepeat = (elem, set) => {
-  const elemLow = elem.toLowerCase();
-  if (set.has(elemLow)) {
-    return false;
-  }
-  set.add(elemLow);
-  return true;
-};
-
-
 pristine.addValidator(imageUploadHashtags, (value) => {
-  if (value !== '') {
-    const hashtagArr = value.split(' ');
-    const hashtagSet = new Set();
-    return (hashtagArr.every((elem) => doesElemRepeat(elem, hashtagSet)));
+  if (!value) {
+    return true;
   }
-  return true;
-}, 'Хэштег не должен повторяться');
-
-
-pristine.addValidator(imageUploadHashtags, (value) => {
-  if (value !== '') {
-    const hashtagArr = value.split(' ');
-    if (hashtagArr.length > MAX_HASHTAGS) {
+  const hashtagArr = value.split(' ');
+  const uniqueHashtagArr = [];
+  return (hashtagArr.every((elem) => {
+    const elemLowCase = elem.toLowerCase();
+    if (uniqueHashtagArr.includes(elemLowCase)) {
       return false;
     }
+    uniqueHashtagArr.push(elemLowCase);
+    return true;
+  }));
+}, 'Хэштег не должен повторяться');
+
+pristine.addValidator(imageUploadHashtags, (value) => {
+  if (!value) {
+    return true;
   }
-  return true;
+  const hashtagArr = value.split(' ');
+  return hashtagArr.length <= MAX_HASHTAGS;
 }, 'Хэштегов не должно быть больше пяти');
 
-
 pristine.addValidator(imageUploadDescription, (value) => value.length <= DESCRIPTION_LENGTH, 'Текст комментария должен быть не более 140 символов');
-
 
 imageUploadDescription.addEventListener('keydown', (evt) => {
   evt.stopPropagation();
 });
 
-
 imageUploadHashtags.addEventListener('keydown', (evt) => {
   evt.stopPropagation();
 });
-
 
 imageUploadForm.addEventListener('submit', (evt) => {
   evt.preventDefault();
