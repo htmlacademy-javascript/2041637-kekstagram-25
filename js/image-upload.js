@@ -65,6 +65,7 @@ effectsList.addEventListener('change', (evt) => {
     image.classList.add(`effects__preview--${evt.target.value}`);
     filter = evt.target.value;
     image.setAttribute('style', `filter:${filterName[filter]}(${sliderDiv.noUiSlider.get()})`);
+    // eslint-disable-next-line no-unused-expressions
     evt.target.value === 'none' ? sliderDiv.classList.add('hidden') : sliderDiv.classList.remove('hidden');
     if (evt.target.value === 'chrome' || evt.target.value === 'sepia') {
       sliderDiv.noUiSlider.updateOptions({
