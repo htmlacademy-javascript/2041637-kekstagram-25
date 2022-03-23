@@ -4,6 +4,9 @@ const MAX_HASHTAGS = 5;
 const HASHTAG_MINLENGTH = 1;
 const HASHTAG_MAXLENGTH = 20;
 const DESCRIPTION_LENGTH = 140;
+const MIN_IMAGE_SIZE = 25;
+const MAX_IMAGE_SIZE = 100;
+const IMAGE_SIZE_STEP = 25;
 
 const pristineConfig = {
   classTo: 'img-upload__text',
@@ -22,19 +25,30 @@ const reg = RegExp(`^#[a-zA-Z]{${HASHTAG_MINLENGTH},${HASHTAG_MAXLENGTH}}$`);
 const smallerButton = imageUploadForm.querySelector('.scale__control--smaller');
 const biggerButton = imageUploadForm.querySelector('.scale__control--bigger');
 const scaleSizeField = imageUploadForm.querySelector('.scale__control--value');
-const image = imageUploadForm.querySelector('.img-upload__preview').querySelector('img');
+const image = imageUploadForm.querySelector('.img-upload__preview img');
 const noneEffect = imageUploadForm.querySelector('.effects__radio[value=none]');
 const effectsList = imageUploadForm.querySelector('.effects__list');
 const sliderDiv = imageUploadForm.querySelector('.effect-level__slider');
 const effectValue = imageUploadForm.querySelector('.effect-level__value');
 
-let filter;
-const filterName = {
-  chrome: 'grayscale',
-  sepia: 'sepia',
-  marvin: 'invert',
-  phobos: 'blue',
-  heat: 'brightness',
+let currentFilter;
+
+const filterType = {
+  NONE: 'none',
+  CHROME: 'chrome',
+  SEPIA: 'sepia',
+  MARVIN: 'marvin',
+  PHOBOS: 'phobos',
+  HEAT: 'heat',
+};
+
+const filterCssValue = {
+  [filterType.NONE]: 'none',
+  [filterType.CHROME]: 'grayscale',
+  [filterType.SEPIA]: 'sepia',
+  [filterType.MARVIN]: 'invert',
+  [filterType.PHOBOS]: 'blur',
+  [filterType.HEAT]: 'brightness',
 };
 
 noUiSlider.create(sliderDiv, {
@@ -44,6 +58,12 @@ noUiSlider.create(sliderDiv, {
     'max' : [1],
   },
   step: 0.1,
+  to: function (value) {
+    return value;
+  },
+  from: function (value) {
+    return parseFloat(value);
+  },
 });
 
 const imageUploadFormCloseHandler = (evt) => {
@@ -56,73 +76,60 @@ const imageUploadFormCloseHandler = (evt) => {
   }
 };
 
+const createSliderConfig = (min, max, start, step, format) => ({
+  range: {
+    'min': [min],
+    'max': [max],
+  },
+  start: [start],
+  step: step,
+  format: {
+    to: function (value) {
+      return value + format;
+    },
+    from: function (value) {
+      return parseFloat(value);
+    },
+  },
+});
+
 effectsList.addEventListener('change', (evt) => {
   if (evt.target.closest('.effects__radio')) {
+    currentFilter = evt.target.value;
     image.classList = '';
-    sliderDiv.noUiSlider.reset();
-    image.style.filter = 'none';
     effectValue.value = '';
-    image.classList.add(`effects__preview--${evt.target.value}`);
-    filter = evt.target.value;
-    image.setAttribute('style', `filter:${filterName[filter]}(${sliderDiv.noUiSlider.get()})`);
+    sliderDiv.noUiSlider.reset();
+    image.classList.add(`effects__preview--${currentFilter}`);
     // eslint-disable-next-line no-unused-expressions
-    evt.target.value === 'none' ? sliderDiv.classList.add('hidden') : sliderDiv.classList.remove('hidden');
-    if (evt.target.value === 'chrome' || evt.target.value === 'sepia') {
-      sliderDiv.noUiSlider.updateOptions({
-        range: {
-          'min': [0],
-          'max': [1],
-        },
-        step: 0.1,
-        start: 1,
-      });
+    currentFilter === filterType.NONE ? sliderDiv.classList.add('hidden') : sliderDiv.classList.remove('hidden');
+    switch (currentFilter) {
+      case filterType.CHROME:
+        sliderDiv.noUiSlider.updateOptions(createSliderConfig(0,1,1,0.1,''));
+        break;
+      case filterType.SEPIA:
+        sliderDiv.noUiSlider.updateOptions(createSliderConfig(0,1,1,0.1,''));
+        break;
+      case filterType.MARVIN:
+        sliderDiv.noUiSlider.updateOptions(createSliderConfig(0,100,100,1, '%'));
+        break;
+      case filterType.PHOBOS:
+        sliderDiv.noUiSlider.updateOptions(createSliderConfig(0,3,3,0.1,'px'));
+        break;
+      case filterType.HEAT:
+        sliderDiv.noUiSlider.updateOptions(createSliderConfig(1,3,3,0.1, ''));
+        break;
     }
-    if (evt.target.value === 'marvin') {
-      sliderDiv.noUiSlider.updateOptions({
-        range: {
-          'min': [0],
-          'max': [100],
-        },
-        step: 1,
-        start: 100,
-        format: {
-          to: function (value) {
-            return `${value}%`;
-          }
-        }
-      });
-    }
-    if (evt.target.value === 'phobos') {
-      sliderDiv.noUiSlider.updateOptions({
-        range: {
-          'min': [0],
-          'max': [3],
-        },
-        step: 0.1,
-        start: 3,
-        format: {
-          to: function (value) {
-            return `${value}px`;
-          }
-        }
-      });
-    }
-    if (evt.target.value === 'heat') {
-      sliderDiv.noUiSlider.updateOptions({
-        range: {
-          'min': [1],
-          'max': [3],
-        },
-        start: 3,
-        step: 0.1,
-      });
+    if (currentFilter === filterType.NONE) {
+      image.style.filter = 'none';
+    } else {
+      image.style.filter = `${filterCssValue[currentFilter]}(${sliderDiv.noUiSlider.get()})`;
     }
   }
 });
 
 sliderDiv.noUiSlider.on('change', () => {
   effectValue.value = sliderDiv.noUiSlider.get();
-  image.setAttribute('style', `filter:${filterName[filter]}(${sliderDiv.noUiSlider.get()})`);
+  image.style.filter = `${filterCssValue[currentFilter]}(${sliderDiv.noUiSlider.get()})`;
 });
 
 imageUploadInput.addEventListener('change', (evt) => {
@@ -138,23 +145,20 @@ imageUploadInput.addEventListener('change', (evt) => {
   }
 });
 
-smallerButton.addEventListener('click', () => {
+const imageSizeHandler = (evt) => {
   let imageSizeValue = +scaleSizeField.value.slice(0, -1);
-  if (imageSizeValue > 25) {
-    imageSizeValue -= 25;
+  if (evt.target === smallerButton && imageSizeValue > MIN_IMAGE_SIZE) {
+    imageSizeValue -= IMAGE_SIZE_STEP;
+  }
+  if (evt.target === biggerButton && imageSizeValue < MAX_IMAGE_SIZE) {
+    imageSizeValue += IMAGE_SIZE_STEP;
   }
   scaleSizeField.value = `${imageSizeValue}%`;
   image.style.transform = `scale(${imageSizeValue/100})`;
-});
+};
 
-biggerButton.addEventListener('click', () => {
-  let imageSizeValue = +scaleSizeField.value.slice(0, -1);
-  if (imageSizeValue < 100) {
-    imageSizeValue += 25;
-  }
-  scaleSizeField.value = `${imageSizeValue}%`;
-  image.style.transform = `scale(${imageSizeValue/100})`;
-});
+smallerButton.addEventListener('click', (evt) => imageSizeHandler(evt));
+biggerButton.addEventListener('click', (evt) => imageSizeHandler(evt));
 
 pristine.addValidator(imageUploadHashtags, (value) => {
   if (!value) {
