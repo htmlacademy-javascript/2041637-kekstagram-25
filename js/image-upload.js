@@ -8,10 +8,104 @@ const MIN_IMAGE_SIZE = 25;
 const MAX_IMAGE_SIZE = 100;
 const IMAGE_SIZE_STEP = 25;
 
-const pristineConfig = {
-  classTo: 'img-upload__text',
-  errorTextParent: 'img-upload__text',
-  errorTextTag: 'div',
+const FilterType = {
+  NONE: 'none',
+  CHROME: 'chrome',
+  SEPIA: 'sepia',
+  MARVIN: 'marvin',
+  PHOBOS: 'phobos',
+  HEAT: 'heat',
+};
+
+const FilterCssValue = {
+  [FilterType.CHROME]: 'grayscale',
+  [FilterType.SEPIA]: 'sepia',
+  [FilterType.MARVIN]: 'invert',
+  [FilterType.PHOBOS]: 'blur',
+  [FilterType.HEAT]: 'brightness',
+};
+
+const SliderEffectConfig = {
+  [FilterType.CHROME]: {
+    start: [1],
+    range: {
+      'min' : [0],
+      'max' : [1],
+    },
+    step: 0.1,
+    format: {
+      to: function (value) {
+        return value;
+      },
+      from: function (value) {
+        return parseFloat(value);
+      },
+    },
+  },
+  [FilterType.SEPIA]: {
+    start: [1],
+    range: {
+      'min' : [0],
+      'max' : [1],
+    },
+    step: 0.1,
+    format: {
+      to: function (value) {
+        return value;
+      },
+      from: function (value) {
+        return parseFloat(value);
+      },
+    },
+  },
+  [FilterType.MARVIN]: {
+    start: [100],
+    range: {
+      'min' : [0],
+      'max' : [100],
+    },
+    step: 1,
+    format: {
+      to: function (value) {
+        return `${value}%`;
+      },
+      from: function (value) {
+        return parseFloat(value);
+      },
+    },
+  },
+  [FilterType.PHOBOS]: {
+    start: [3],
+    range: {
+      'min' : [0],
+      'max' : [3],
+    },
+    step: 0.1,
+    format: {
+      to: function (value) {
+        return `${value}px`;
+      },
+      from: function (value) {
+        return parseFloat(value);
+      },
+    },
+  },
+  [FilterType.HEAT]: {
+    start: [3],
+    range: {
+      'min' : [1],
+      'max' : [3],
+    },
+    step: 0.1,
+    format: {
+      to: function (value) {
+        return value;
+      },
+      from: function (value) {
+        return parseFloat(value);
+      },
+    },
+  },
 };
 
 const imageUploadForm = document.querySelector('.img-upload__form');
@@ -20,8 +114,6 @@ const imageUploadOverlay = imageUploadForm.querySelector('.img-upload__overlay')
 const imageUploadCancelButton = imageUploadForm.querySelector('.img-upload__cancel');
 const imageUploadHashtags = imageUploadForm.querySelector('.text__hashtags');
 const imageUploadDescription = imageUploadForm.querySelector('.text__description');
-const pristine = new Pristine(imageUploadForm, pristineConfig);
-const reg = RegExp(`^#[a-zA-Z]{${HASHTAG_MINLENGTH},${HASHTAG_MAXLENGTH}}$`);
 const smallerButton = imageUploadForm.querySelector('.scale__control--smaller');
 const biggerButton = imageUploadForm.querySelector('.scale__control--bigger');
 const scaleSizeField = imageUploadForm.querySelector('.scale__control--value');
@@ -31,25 +123,17 @@ const effectsList = imageUploadForm.querySelector('.effects__list');
 const sliderDiv = imageUploadForm.querySelector('.effect-level__slider');
 const effectValue = imageUploadForm.querySelector('.effect-level__value');
 
+const pristineConfig = {
+  classTo: 'img-upload__text',
+  errorTextParent: 'img-upload__text',
+  errorTextTag: 'div',
+};
+
+const pristine = new Pristine(imageUploadForm, pristineConfig);
+
 let currentFilter;
 
-const filterType = {
-  NONE: 'none',
-  CHROME: 'chrome',
-  SEPIA: 'sepia',
-  MARVIN: 'marvin',
-  PHOBOS: 'phobos',
-  HEAT: 'heat',
-};
-
-const filterCssValue = {
-  [filterType.NONE]: 'none',
-  [filterType.CHROME]: 'grayscale',
-  [filterType.SEPIA]: 'sepia',
-  [filterType.MARVIN]: 'invert',
-  [filterType.PHOBOS]: 'blur',
-  [filterType.HEAT]: 'brightness',
-};
+const reg = RegExp(`^#[a-zA-Z]{${HASHTAG_MINLENGTH},${HASHTAG_MAXLENGTH}}$`);
 
 noUiSlider.create(sliderDiv, {
   start: [1],
@@ -58,40 +142,27 @@ noUiSlider.create(sliderDiv, {
     'max' : [1],
   },
   step: 0.1,
-  to: function (value) {
-    return value;
-  },
-  from: function (value) {
-    return parseFloat(value);
-  },
-});
-
-const imageUploadFormCloseHandler = (evt) => {
-  if (isEscPressed(evt) || evt.type === 'click') {
-    imageUploadForm.reset();
-    imageUploadOverlay.classList.add('hidden');
-    document.body.classList.remove('modal-open');
-    imageUploadCancelButton.removeEventListener('click', imageUploadFormCloseHandler);
-    document.removeEventListener('keydown', imageUploadFormCloseHandler);
-  }
-};
-
-const createSliderConfig = (min, max, start, step, format) => ({
-  range: {
-    'min': [min],
-    'max': [max],
-  },
-  start: [start],
-  step: step,
   format: {
     to: function (value) {
-      return value + format;
+      return value;
     },
     from: function (value) {
       return parseFloat(value);
     },
   },
 });
+
+const imageUploadFormCloseHandler = (evt) => {
+  if (isEscPressed(evt) || evt.type === 'click') {
+    imageUploadForm.reset();
+    image.classList = '';
+    image.removeAttribute('style');
+    imageUploadOverlay.classList.add('hidden');
+    document.body.classList.remove('modal-open');
+    imageUploadCancelButton.removeEventListener('click', imageUploadFormCloseHandler);
+    document.removeEventListener('keydown', imageUploadFormCloseHandler);
+  }
+};
 
 effectsList.addEventListener('change', (evt) => {
   if (evt.target.closest('.effects__radio')) {
@@ -100,36 +171,20 @@ effectsList.addEventListener('change', (evt) => {
     effectValue.value = '';
     sliderDiv.noUiSlider.reset();
     image.classList.add(`effects__preview--${currentFilter}`);
-    // eslint-disable-next-line no-unused-expressions
-    currentFilter === filterType.NONE ? sliderDiv.classList.add('hidden') : sliderDiv.classList.remove('hidden');
-    switch (currentFilter) {
-      case filterType.CHROME:
-        sliderDiv.noUiSlider.updateOptions(createSliderConfig(0,1,1,0.1,''));
-        break;
-      case filterType.SEPIA:
-        sliderDiv.noUiSlider.updateOptions(createSliderConfig(0,1,1,0.1,''));
-        break;
-      case filterType.MARVIN:
-        sliderDiv.noUiSlider.updateOptions(createSliderConfig(0,100,100,1, '%'));
-        break;
-      case filterType.PHOBOS:
-        sliderDiv.noUiSlider.updateOptions(createSliderConfig(0,3,3,0.1,'px'));
-        break;
-      case filterType.HEAT:
-        sliderDiv.noUiSlider.updateOptions(createSliderConfig(1,3,3,0.1, ''));
-        break;
-    }
-    if (currentFilter === filterType.NONE) {
+    if (currentFilter === FilterType.NONE) {
+      sliderDiv.classList.add('hidden');
       image.style.filter = 'none';
     } else {
-      image.style.filter = `${filterCssValue[currentFilter]}(${sliderDiv.noUiSlider.get()})`;
+      sliderDiv.classList.remove('hidden');
+      sliderDiv.noUiSlider.updateOptions(SliderEffectConfig[currentFilter]);
+      image.style.filter = `${FilterCssValue[currentFilter]}(${sliderDiv.noUiSlider.get()})`;
     }
   }
 });
 
 sliderDiv.noUiSlider.on('change', () => {
   effectValue.value = sliderDiv.noUiSlider.get();
-  image.style.filter = `${filterCssValue[currentFilter]}(${sliderDiv.noUiSlider.get()})`;
+  image.style.filter = `${FilterCssValue[currentFilter]}(${sliderDiv.noUiSlider.get()})`;
 });
 
 imageUploadInput.addEventListener('change', (evt) => {
