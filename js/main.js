@@ -1,4 +1,3 @@
-import {getImageDescriptions} from './data.js';
 import {generateImagesFromData} from './image-generator.js';
 import {getData} from './network.js';
 import {showAlert} from './util.js';

@@ -12,6 +12,7 @@ const getData = (onSuccess, onFail) => {
       }
     })
     .then((data) => onSuccess(data))
+    // eslint-disable-next-line no-console
     .catch((err) => console.log(err.message));
 };
 

@@ -1,6 +1,5 @@
 import {isEscPressed} from './util.js';
 import {sendData} from './network.js';
-import {showAlert} from './util.js';
 
 const MAX_HASHTAGS = 5;
 const HASHTAG_MINLENGTH = 1;
