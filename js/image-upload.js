@@ -1,4 +1,6 @@
 import {isEscPressed} from './util.js';
+import {sendData} from './network.js';
+import {showAlert} from './util.js';
 
 const MAX_HASHTAGS = 5;
 const HASHTAG_MINLENGTH = 1;
@@ -17,7 +19,7 @@ const FilterType = {
   HEAT: 'heat',
 };
 
-const FilterCssValue = {
+const filterCssValue = {
   [FilterType.CHROME]: 'grayscale',
   [FilterType.SEPIA]: 'sepia',
   [FilterType.MARVIN]: 'invert',
@@ -122,6 +124,9 @@ const noneEffect = imageUploadForm.querySelector('.effects__radio[value=none]');
 const effectsList = imageUploadForm.querySelector('.effects__list');
 const sliderDiv = imageUploadForm.querySelector('.effect-level__slider');
 const effectValue = imageUploadForm.querySelector('.effect-level__value');
+const submitButton = imageUploadForm.querySelector('.img-upload__submit');
+const successModal = document.querySelector('#success').content;
+const errorModal = document.querySelector('#error').content;
 
 const pristineConfig = {
   classTo: 'img-upload__text',
@@ -153,7 +158,7 @@ noUiSlider.create(sliderDiv, {
 });
 
 const imageUploadFormCloseHandler = (evt) => {
-  if (isEscPressed(evt) || evt.type === 'click') {
+  if (isEscPressed(evt) || evt.type === 'click' || evt.target === imageUploadForm) {
     imageUploadForm.reset();
     image.classList = '';
     image.removeAttribute('style');
@@ -177,14 +182,14 @@ effectsList.addEventListener('change', (evt) => {
     } else {
       sliderDiv.classList.remove('hidden');
       sliderDiv.noUiSlider.updateOptions(SliderEffectConfig[currentFilter]);
-      image.style.filter = `${FilterCssValue[currentFilter]}(${sliderDiv.noUiSlider.get()})`;
+      image.style.filter = `${filterCssValue[currentFilter]}(${sliderDiv.noUiSlider.get()})`;
     }
   }
 });
 
 sliderDiv.noUiSlider.on('change', () => {
   effectValue.value = sliderDiv.noUiSlider.get();
-  image.style.filter = `${FilterCssValue[currentFilter]}(${sliderDiv.noUiSlider.get()})`;
+  image.style.filter = `${filterCssValue[currentFilter]}(${sliderDiv.noUiSlider.get()})`;
 });
 
 imageUploadInput.addEventListener('change', (evt) => {
@@ -257,14 +262,77 @@ imageUploadHashtags.addEventListener('keydown', (evt) => {
   evt.stopPropagation();
 });
 
+const blockSubmitButton = () => {
+  submitButton.disabled = true;
+  submitButton.textContent = 'Сохраняю...';
+};
+
+const unblockSubmitButton = () => {
+  submitButton.disabled = false;
+  submitButton.textContent = 'Сохранить';
+};
+
+const showSuccessModal = () => {
+  const successModalClone = successModal.cloneNode(true);
+  const successButton = successModalClone.querySelector('.success__button');
+  const success = successModalClone.querySelector('.success');
+  successButton.addEventListener('click', () => {
+    success.remove();
+  });
+  document.addEventListener('keydown', (evt) => {
+    if (isEscPressed(evt)) {
+      success.remove();
+    }
+  });
+  document.addEventListener('click', (evt) => {
+    if (evt.target === success) {
+      success.remove();
+    }
+  });
+  document.body.classList.add('modal-open');
+  document.body.appendChild(successModalClone);
+};
+
+const showErrorModal = () => {
+  const errorModalClone = errorModal.cloneNode(true);
+  const errorButton = errorModalClone.querySelector('.error__button');
+  const error = errorModalClone.querySelector('.error');
+  errorButton.addEventListener('click', () => {
+    error.remove();
+  });
+  document.addEventListener('keydown', (evt) => {
+    if (isEscPressed(evt)) {
+      error.remove();
+    }
+  });
+  document.addEventListener('click', (evt) => {
+    if (evt.target === error) {
+      error.remove();
+    }
+  });
+  document.body.classList.add('modal-open');
+  document.body.appendChild(errorModalClone);
+};
+
 imageUploadForm.addEventListener('submit', (evt) => {
   evt.preventDefault();
   const isValid = pristine.validate();
   if (isValid) {
     // eslint-disable-next-line no-console
-    console.log('Можно отправлять');
-  } else {
-    // eslint-disable-next-line no-console
-    console.log('Форма невалидна');
+    blockSubmitButton();
+    sendData(
+      () => {
+        // showAlert('Форма отправлена успешно');
+        unblockSubmitButton();
+        imageUploadFormCloseHandler(evt);
+        showSuccessModal();
+      },
+      () => {
+        //showAlert('Не удалось отправить форму, попробуйте еще раз');
+        unblockSubmitButton();
+        imageUploadFormCloseHandler(evt);
+        showErrorModal();
+      },
+      new FormData(evt.target));
   }
 });

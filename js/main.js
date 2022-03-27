@@ -1,7 +1,11 @@
 import {getImageDescriptions} from './data.js';
 import {generateImagesFromData} from './image-generator.js';
+import {getData} from './network.js';
+import {showAlert} from './util.js';
 import './image-upload.js';
 
-const imageDescriptions = getImageDescriptions();
-generateImagesFromData(imageDescriptions);
+getData(generateImagesFromData, showAlert);
+
+/*const imageDescriptions = getImageDescriptions();
+generateImagesFromData(imageDescriptions);*/
 
