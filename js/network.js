@@ -12,8 +12,7 @@ const getData = (onSuccess, onFail) => {
       }
     })
     .then((data) => onSuccess(data))
-    // eslint-disable-next-line no-console
-    .catch((err) => console.log(err.message));
+    .catch(onFail);
 };
 
 const sendData = (onSuccess, onFail, formData) => {
@@ -28,8 +27,8 @@ const sendData = (onSuccess, onFail, formData) => {
       else {
         onFail();
       }
-    });
-//    .catch((err) => console.log(err.message));
+    })
+    .catch(onFail);
 };
 
 export {getData, sendData};

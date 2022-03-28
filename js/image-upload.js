@@ -317,17 +317,14 @@ imageUploadForm.addEventListener('submit', (evt) => {
   evt.preventDefault();
   const isValid = pristine.validate();
   if (isValid) {
-    // eslint-disable-next-line no-console
     blockSubmitButton();
     sendData(
       () => {
-        // showAlert('Форма отправлена успешно');
         unblockSubmitButton();
         imageUploadFormCloseHandler(evt);
         showSuccessModal();
       },
       () => {
-        //showAlert('Не удалось отправить форму, попробуйте еще раз');
         unblockSubmitButton();
         imageUploadFormCloseHandler(evt);
         showErrorModal();

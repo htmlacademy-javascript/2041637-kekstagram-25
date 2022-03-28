@@ -13,9 +13,7 @@ const getRandomOnInterval = (num1, num2) => {
 };
 
 const checkStringLength = (string, maxLength) => (string.length <= maxLength);
-
-// eslint-disable-next-line no-console
-console.log(checkStringLength('1412424131', 15));
+checkStringLength('fdsfasf', 9);
 
 const showAlert = (alert) => {
   const alertContainer = document.createElement('div');
@@ -39,6 +37,4 @@ const showAlert = (alert) => {
   }, ALERT_SHOW_TIME);
 };
 
-export {getRandomOnInterval};
-export {isEscPressed};
-export {showAlert};
+export {getRandomOnInterval, isEscPressed, showAlert};

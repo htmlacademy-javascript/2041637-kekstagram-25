@@ -4,7 +4,3 @@ import {showAlert} from './util.js';
 import './image-upload.js';
 
 getData(generateImagesFromData, showAlert);
-
-/*const imageDescriptions = getImageDescriptions();
-generateImagesFromData(imageDescriptions);*/
-
