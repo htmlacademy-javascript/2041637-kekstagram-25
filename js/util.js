@@ -37,4 +37,12 @@ const showAlert = (alert) => {
   }, ALERT_SHOW_TIME);
 };
 
-export {getRandomOnInterval, isEscPressed, showAlert};
+function debounce (callback, timeoutDelay = 500) {
+  let timeoutId;
+  return (...rest) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => callback.apply(this, rest), timeoutDelay);
+  };
+}
+
+export {getRandomOnInterval, isEscPressed, showAlert, debounce};
