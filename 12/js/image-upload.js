@@ -1,5 +1,5 @@
 import {isEscPressed} from './util.js';
-import {sendData} from './network.js';
+import {sendData} from './data.js';
 
 const MAX_HASHTAGS = 5;
 const HASHTAG_MINLENGTH = 1;
@@ -111,6 +111,7 @@ const SliderEffectConfig = {
 
 const imageUploadForm = document.querySelector('.img-upload__form');
 const imageUploadInput = imageUploadForm.querySelector('.img-upload__input');
+const imageUploadPreview = imageUploadForm.querySelector('.img-upload__preview img');
 const imageUploadOverlay = imageUploadForm.querySelector('.img-upload__overlay');
 const imageUploadCancelButton = imageUploadForm.querySelector('.img-upload__cancel');
 const imageUploadHashtags = imageUploadForm.querySelector('.text__hashtags');
@@ -193,6 +194,8 @@ sliderDiv.noUiSlider.on('change', () => {
 
 imageUploadInput.addEventListener('change', (evt) => {
   if (evt.target.value) {
+    const file = imageUploadInput.files[0];
+    imageUploadPreview.src = URL.createObjectURL(file);
     scaleSizeField.value = '100%';
     imageUploadOverlay.classList.remove('hidden');
     document.body.classList.add('modal-open');
