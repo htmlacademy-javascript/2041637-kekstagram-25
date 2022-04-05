@@ -3,7 +3,7 @@ import {openBigImageForm} from './image-viewer.js';
 const imageTemplate = document.querySelector('#picture').content;
 const picturesContainer = document.querySelector('.pictures');
 
-const generateImagesFromData = (imageDescriptions) => {
+const renderImagesFromData = (imageDescriptions) => {
   const imagesFragment = document.createDocumentFragment();
   imageDescriptions.forEach((imageDescription) => {
     const imageTemplateCopy = imageTemplate.cloneNode(true);
@@ -26,4 +26,9 @@ const generateImagesFromData = (imageDescriptions) => {
   });
 };
 
-export {generateImagesFromData};
+const clearRenderedImages = () => {
+  const images = picturesContainer.querySelectorAll('.picture');
+  images.forEach((image) => image.remove());
+};
+
+export {renderImagesFromData, clearRenderedImages};
