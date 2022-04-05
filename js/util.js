@@ -12,9 +12,6 @@ const getRandomOnInterval = (num1, num2) => {
   return num1 === num2 ? num1 : Math.floor(Math.random()*(num2 - num1 + 1)) + num1;
 };
 
-const checkStringLength = (string, maxLength) => (string.length <= maxLength);
-checkStringLength('fdsfasf', 9);
-
 const showAlert = (alert) => {
   const alertContainer = document.createElement('div');
   alertContainer.style.zIndex = 100;
