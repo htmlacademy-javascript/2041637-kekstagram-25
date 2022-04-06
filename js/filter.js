@@ -64,9 +64,11 @@ const onFilterChange = debounce(applyFilter);
 const addFilterListeners = (imageDescriptions, onFilterComplete) => {
   filtersForm.addEventListener('click', (evt) => {
     const filterType = buttonIdToFilterType[evt.target.id];
-    document.querySelector('.img-filters__button--active').classList.remove('img-filters__button--active');
-    evt.target.classList.add('img-filters__button--active');
-    onFilterChange(filterType, imageDescriptions, onFilterComplete);
+    if (filterType) {
+      document.querySelector('.img-filters__button--active').classList.remove('img-filters__button--active');
+      evt.target.classList.add('img-filters__button--active');
+      onFilterChange(filterType, imageDescriptions, onFilterComplete);
+    }
   });
 };
 
