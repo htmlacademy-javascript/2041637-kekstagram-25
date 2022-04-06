@@ -127,18 +127,20 @@ const effectValue = imageUploadForm.querySelector('.effect-level__value');
 const submitButton = imageUploadForm.querySelector('.img-upload__submit');
 const successModal = document.querySelector('#success').content;
 const errorModal = document.querySelector('#error').content;
+const slider = document.querySelector('.img-upload__effect-level');
 
 const pristineConfig = {
   classTo: 'img-upload__text',
   errorTextParent: 'img-upload__text',
   errorTextTag: 'div',
+  errorTextClass: 'pristine-error-text',
 };
 
 const pristine = new Pristine(imageUploadForm, pristineConfig);
 
 let currentFilter;
 
-const reg = RegExp(`^#[a-zA-Z]{${HASHTAG_MINLENGTH},${HASHTAG_MAXLENGTH}}$`);
+const reg = RegExp(`^#[a-zA-Z0-9]{${HASHTAG_MINLENGTH},${HASHTAG_MAXLENGTH}}$`);
 
 noUiSlider.create(sliderDiv, {
   start: [1],
@@ -162,6 +164,10 @@ const imageUploadFormCloseHandler = (evt) => {
     imageUploadForm.reset();
     image.classList = '';
     image.removeAttribute('style');
+    const pristineErrorContainer = document.querySelector('.pristine-error-text');
+    if (pristineErrorContainer) {
+      pristineErrorContainer.textContent = '';
+    }
     imageUploadOverlay.classList.add('hidden');
     document.body.classList.remove('modal-open');
     imageUploadCancelButton.removeEventListener('click', imageUploadFormCloseHandler);
@@ -177,9 +183,10 @@ effectsList.addEventListener('change', (evt) => {
     sliderDiv.noUiSlider.reset();
     image.classList.add(`effects__preview--${currentFilter}`);
     if (currentFilter === FilterType.NONE) {
-      sliderDiv.classList.add('hidden');
+      slider.classList.add('hidden');
       image.style.filter = 'none';
     } else {
+      slider.classList.remove('hidden');
       sliderDiv.classList.remove('hidden');
       sliderDiv.noUiSlider.updateOptions(SliderEffectConfig[currentFilter]);
       image.style.filter = `${filterCssValue[currentFilter]}(${sliderDiv.noUiSlider.get()})`;
@@ -200,7 +207,7 @@ imageUploadInput.addEventListener('change', (evt) => {
     imageUploadOverlay.classList.remove('hidden');
     document.body.classList.add('modal-open');
     if (noneEffect.checked) {
-      sliderDiv.classList.add('hidden');
+      slider.classList.add('hidden');
     }
     document.addEventListener('keydown', imageUploadFormCloseHandler);
     imageUploadCancelButton.addEventListener('click', imageUploadFormCloseHandler);
@@ -228,7 +235,7 @@ pristine.addValidator(imageUploadHashtags, (value) => {
   }
   const hashtagArr = value.split(' ');
   return hashtagArr.every((elem) => reg.test(elem));
-}, 'Хэштег должен начинаться с # и быть длиной от 1 до 20 символов, содержать только латинские буквы');
+}, 'Хэштег должен начинаться с # и быть длиной от 1 до 20 символов, содержать только латинские буквы и цифры');
 
 pristine.addValidator(imageUploadHashtags, (value) => {
   if (!value) {
