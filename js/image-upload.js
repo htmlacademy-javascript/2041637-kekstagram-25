@@ -128,15 +128,10 @@ const submitButton = imageUploadForm.querySelector('.img-upload__submit');
 const successModal = document.querySelector('#success').content;
 const errorModal = document.querySelector('#error').content;
 const slider = document.querySelector('.img-upload__effect-level');
+const imageInputsContainer = imageUploadForm.querySelector('.img-upload__text');
+let pristineErrorContainer;
 
-const pristineConfig = {
-  classTo: 'img-upload__text',
-  errorTextParent: 'img-upload__text',
-  errorTextTag: 'div',
-  errorTextClass: 'pristine-error-text',
-};
-
-const pristine = new Pristine(imageUploadForm, pristineConfig);
+const pristine = new Pristine(imageUploadForm);
 
 let currentFilter;
 
@@ -159,14 +154,19 @@ noUiSlider.create(sliderDiv, {
   },
 });
 
+const addPristineErrorContainer = () => {
+  pristineErrorContainer = document.createElement('div');
+  pristineErrorContainer.classList.add('prisine-container');
+  imageInputsContainer.appendChild(pristineErrorContainer);
+};
+
 const imageUploadFormCloseHandler = (evt) => {
   if (isEscPressed(evt) || evt.type === 'click' || evt.target === imageUploadForm) {
     imageUploadForm.reset();
     image.classList = '';
     image.removeAttribute('style');
-    const pristineErrorContainer = document.querySelector('.pristine-error-text');
     if (pristineErrorContainer) {
-      pristineErrorContainer.textContent = '';
+      pristineErrorContainer.innerHTML = '';
     }
     imageUploadOverlay.classList.add('hidden');
     document.body.classList.remove('modal-open');
@@ -204,6 +204,7 @@ imageUploadInput.addEventListener('change', (evt) => {
     const file = imageUploadInput.files[0];
     imageUploadPreview.src = URL.createObjectURL(file);
     scaleSizeField.value = '100%';
+    addPristineErrorContainer();
     imageUploadOverlay.classList.remove('hidden');
     document.body.classList.add('modal-open');
     if (noneEffect.checked) {
@@ -229,10 +230,14 @@ const imageSizeHandler = (evt) => {
 smallerButton.addEventListener('click', (evt) => imageSizeHandler(evt));
 biggerButton.addEventListener('click', (evt) => imageSizeHandler(evt));
 
+pristine.addValidator(imageUploadDescription, (value) => value.length <= DESCRIPTION_LENGTH, 'Текст комментария должен быть не более 140 символов');
+
 pristine.addValidator(imageUploadHashtags, (value) => {
   if (!value) {
     return true;
   }
+  value = value.replace(/\s\s+/g, ' ');
+  value = value.replace(/^\s+|\s+$/g, '');
   const hashtagArr = value.split(' ');
   return hashtagArr.every((elem) => reg.test(elem));
 }, 'Хэштег должен начинаться с # и быть длиной от 1 до 20 символов, содержать только латинские буквы и цифры');
@@ -241,6 +246,8 @@ pristine.addValidator(imageUploadHashtags, (value) => {
   if (!value) {
     return true;
   }
+  value = value.replace(/\s\s+/g, ' ');
+  value = value.replace(/^\s+|\s+$/g, '');
   const hashtagArr = value.split(' ');
   const uniqueHashtagArr = [];
   return (hashtagArr.every((elem) => {
@@ -257,11 +264,11 @@ pristine.addValidator(imageUploadHashtags, (value) => {
   if (!value) {
     return true;
   }
+  value = value.replace(/\s\s+/g, ' ');
+  value = value.replace(/^\s+|\s+$/g, '');
   const hashtagArr = value.split(' ');
   return hashtagArr.length <= MAX_HASHTAGS;
 }, 'Хэштегов не должно быть больше пяти');
-
-pristine.addValidator(imageUploadDescription, (value) => value.length <= DESCRIPTION_LENGTH, 'Текст комментария должен быть не более 140 символов');
 
 imageUploadDescription.addEventListener('keydown', (evt) => {
   evt.stopPropagation();
@@ -324,9 +331,16 @@ const showErrorModal = () => {
 };
 
 imageUploadForm.addEventListener('submit', (evt) => {
+  pristineErrorContainer.innerHTML = '';
   evt.preventDefault();
-  const isValid = pristine.validate();
-  if (isValid) {
+  pristine.validate();
+  const errorsByInputType = pristine.getErrors();
+  errorsByInputType.forEach((errorType) => {
+    errorType.errors.forEach((error) => {
+      pristineErrorContainer.innerHTML += `${error}<br>`;
+    });
+  });
+  if (errorsByInputType.length === 0) {
     blockSubmitButton();
     sendData(
       () => {
